@@ -1,78 +1,91 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { RedditList } from './';
-import { counterPlusOne, counterMinusOne, resetCounter, fetchRedditReactjsList } from './redux/actions';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {RedditList} from './';
+import {counterPlusOne, counterMinusOne, resetCounter, fetchRedditReactjsList} from './redux/actions';
+import Navigation from "./Navigation.js";
+import Hero from "./Hero.js";
+import TitleList from "./TitleList.js";
 
 export class DefaultPage extends Component {
-  static propTypes = {
-    home: PropTypes.object.isRequired,
-    actions: PropTypes.object.isRequired,
-  };
+    constructor(){
+        super();
+        this.state={
+            searchTerm:"",
+            searchUrl:"",
+        }
 
-  render() {
-    const { count, fetchRedditReactjsListPending, redditReactjsList, fetchRedditReactjsListError } = this.props.home;
-    const { counterPlusOne, counterMinusOne, resetCounter, fetchRedditReactjsList } = this.props.actions;
-    return (
-      <div className="home-default-page">
-        <a href="http://github.com/supnate/rekit"><img src={require('../../images/logo.png')} className="app-logo" alt="logo" /></a>
-        <h1>Welcome to your Rekit application!</h1>
-        <p>
-          Contratulations! You have created your Rekit app successfully! Seeing this page means everything works well now.
-        </p>
-        <p>
-          By default <a href="https://github.com/supnate/rekit-portal">Rekit portal</a> is also started at <a href="http://localhost:6076">http://localhost:6076</a> to manage the project.
-        </p>
-        <p>
-          The app has been initialized with two features named &quot;common&quot; and &quot;home&quot; and two samples: counter and Reddit list viewer as shown below.
-        </p>
-        <p>
-          To learn more about how to get started, you can visit: <a href="http://rekit.js.org/docs/get-started.html">Get started</a>
-        </p>
-        <h3>Demos</h3>
-        <p>Here are two simple demos for your quick reference. You can open the browser dev tools to see Redux action logs.</p>
-        <p className="section-title">To see how Redux works in the project, here is the demo of a simple counter:</p>
-        <div className="demo-count">
-          <button className="btn-minus-one" onClick={counterMinusOne} disabled={count === 0}>-</button>
-          <label>{count}</label>
-          <button className="btn-plus-one" onClick={counterPlusOne}>+</button>
-          <button className="btn-reset-counter" onClick={resetCounter}>Reset</button>
-        </div>
+        this.handleChange = this.handleChange.bind(this);
+        this.handleKeyUp = this.handleKeyUp.bind(this);
+    }
+    // static propTypes = {
+    //     home: PropTypes.object.isRequired,
+    //     actions: PropTypes.object.isRequired,
+    // };
 
-        <p className="section-title">To see how async flow works, here is an example of fetching reddit reactjs topics:</p>
-        <div className="demo-reddit">
-          <button className="btn-fetch-reddit" disabled={fetchRedditReactjsListPending} onClick={fetchRedditReactjsList}>
-            {fetchRedditReactjsListPending ? 'Fetching...' : 'Fetch reactjs topics'}
-          </button>
-          {
-            fetchRedditReactjsListError &&
-              <div className="fetch-list-error">
-                Failed to load: {fetchRedditReactjsListError.toString()}
-              </div>
-          }
-          <RedditList list={redditReactjsList} />
-        </div>
-      </div>
-    );
-  }
+
+    //input handle change
+    handleChange(e){
+        console.log(e.target.value)
+        this.setState({
+            searchTerm: e.target.value
+        })
+    }
+
+    //handle enter button after inputing in the input button
+    handleKeyUp(e){
+        console.log(this.state.searchTerm)
+        if(e.key==='Enter' && this.state.searchTerm !==''){
+            var searchUrl= "search/multi?query=" + this.state.searchTerm + "&api_key=" + this.apiKey;
+            console.log(searchUrl)
+            this.setState({searchUrl:searchUrl})
+        }
+    }
+
+
+    render() {
+
+        return (
+            <div className="home-default-page">
+                <header className="Header">
+                {/*Logo*/}
+                <Navigation/>
+                <div id="search" className="Search">
+                    <input onKeyUp={this.handleKeyUp} onChange={this.handleChange} type="search"
+                           placeholder="Search for a title..." defaultValue={this.state.searchTerm}/>
+                </div>
+                </header>
+                <Hero/>
+
+                <TitleList title="Search Results" url={this.state.searchUrl} />
+                <TitleList title="Top TV picks for Jack" url='discover/tv?sort_by=popularity.desc&page=1' />
+                <TitleList title="Trending now" url='discover/movie?sort_by=popularity.desc&page=1' />
+                <TitleList title="Most watched in Horror" url='genre/27/movies?sort_by=popularity.desc&page=1' />
+                <TitleList title="Sci-Fi greats" url='genre/878/movies?sort_by=popularity.desc&page=1' />
+                <TitleList title="Comedy magic" url='genre/35/movies?sort_by=popularity.desc&page=1' />
+            </div>
+        );
+    }
 }
 
 /* istanbul ignore next */
-function mapStateToProps(state) {
-  return {
-    home: state.home,
-  };
-}
+// function mapStateToProps(state) {
+//     return {
+//         home: state.home,
+//     };
+// }
 
 /* istanbul ignore next */
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators({ counterPlusOne, counterMinusOne, resetCounter, fetchRedditReactjsList }, dispatch)
-  };
-}
+// function mapDispatchToProps(dispatch) {
+//     return {
+//         actions: bindActionCreators({counterPlusOne, counterMinusOne, resetCounter, fetchRedditReactjsList}, dispatch)
+//     };
+// }
+//
+// export default connect(
+//     mapStateToProps,
+//     mapDispatchToProps
+// )(DefaultPage);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DefaultPage);
+export default DefaultPage;
